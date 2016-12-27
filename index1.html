@@ -107,7 +107,7 @@
       if(oldIndex === index || !oldIndex ||  pictures[oldIndex].img !== pictures[index].img) {
         return;
       }
-      if(this.checkConnectable(oldIndex, index)) {
+      if(this.checkConnected(oldIndex, index)) {
         pictures[oldIndex].isEmpty = true;
         pictures[index].isEmpty = true;
         var $gameImg = $('.game-box img');
@@ -117,7 +117,7 @@
       }
     },
 
-    checkConnectable: function (oldIndex, newIndex) {
+    checkConnected: function (oldIndex, newIndex) {
       var self = this;
       var oldPicture = self.pictures[oldIndex],
           newPicture = self.pictures[newIndex],
@@ -130,54 +130,35 @@
       if(oldX === newX && (oldX === 0 || oldX === self.rows - 1)  || oldY === newY && (oldY === 0 || oldY === self.cols - 1)) {
         return true;
       }
-      var closePictures = self.getDirectConnectPictures(newPicture); // 直接连接
-      console.log(JSON.stringify(closePictures));
+      var closePictures = self.getDirectConnectPictures(newPicture, oldPicture); // 直接连接
       closePictures.forEach(function (pic) { // 一个拐点
-        self.mergeArray(closePictures, self.getDirectConnectPictures(pic));
+        self.mergeArray(closePictures, self.getDirectConnectPictures(pic, oldPicture));
       });
-      console.log(JSON.stringify(closePictures));
       closePictures.forEach(function (pic) { // 2个拐点
-        self.mergeArray(closePictures, self.getDirectConnectPictures(pic));
+        self.mergeArray(closePictures, self.getDirectConnectPictures(pic, oldPicture));
       });
-      console.log(JSON.stringify(closePictures));
+      console.log(closePictures);
       if(closePictures.indexOf(oldPicture) !== -1) {
         return true;
       }
       return false;
     },
 
-    getDirectConnectPictures: function (startPicture) {
-//      var directConnectPictures = this.pictures.filter(function (pic) {
-//        return (pic.row === startPicture.row || pic.col === startPicture.col) && pic.isEmpty;
-//      });
-
-      var closePictures = [];
-
+    getDirectConnectPictures: function (startPicture, endPicture) {
+      var self = this;
       var left = this.pictures.filter(function (pic) {
-        return pic.index === startPicture.index - 1 && pic.isEmpty && pic.row === startPicture.row;
+        return pic.index < startPicture.index && (pic.isEmpty || pic === endPicture) && pic.row === startPicture.row;
       });
-
       var right = this.pictures.filter(function (pic) {
-        return pic.index === startPicture.index + 1 && pic.isEmpty && pic.row === startPicture.row;
-      }).shift();
-
-      var up = directConnectPictures.filter(function (pic) {
-        return pic.col === startPicture.col && pic.index < startPicture.index;
-      }).sort(function (pic1, pic2) {
-        return pic2.index - pic1.index;
-      }).shift();
-
-      var down = directConnectPictures.filter(function (pic) {
-        return pic.col === startPicture.col && pic.index > startPicture.index;
-      }).sort(function (pic1, pic2) {
-        return pic1.index - pic2.index;
-      }).shift();
-
-      left && closePictures.push(left);
-      right && closePictures.push(right);
-      up && closePictures.push(up);
-      down && closePictures.push(down);
-      return closePictures;
+        return pic.index > startPicture.index && (pic.isEmpty || pic === endPicture) && pic.row === startPicture.row;
+      });
+      var up = this.pictures.filter(function (pic) {
+        return (pic.index < startPicture.index) && (pic.col === startPicture.col) && (pic.isEmpty || pic === endPicture);
+      });
+      var down = this.pictures.filter(function (pic) {
+        return pic.index > startPicture.index && (pic.col === startPicture.col) && (pic.isEmpty || pic === endPicture);
+      });
+      return [].concat(left, right, up, down);
     },
 
 
