@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .game-box {
+      width: 800px;
+      position: relative;
+      margin: 0 auto;
+    }
+
+    .game-box .game-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+    }
+
+    .game-box .game-row img {
+      cursor: pointer;
+    }
+
+    .transparent {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-box"></div>
+  <script src="//cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
+<script>
+  'use strict';
+
+  window.onload = function () {
+    var iconList = [];
+    for(var i = 0; i < 18; i++) {
+      iconList.push('./images/pvz_' + (i < 10 ? '0' + (i + 1) : (i+1))+ '.png');
+    }
+    var gameConfig = {
+      cellWidth: 68,
+      cellHeight: 64,
+      rows: 7,
+      cols: 10,
+      level: 1,
+      iconList: iconList
+    }
+    var linkGame = new LinkGame(gameConfig);
+    linkGame.init();
+  };
+
+
+
+  function LinkGame(config) {
+    // 强制采用构造函数形式进行调用
+    if(!(this instanceof LinkGame)) {
+      return new LinkGame(config);
+    }
+    this.$box = $('.' + (config.boxId || 'game-box'))
+    this.cellWidth = config.cellWidth || 68; // 每格的的宽度
+    this.cellHeight = config.cellHeight || 64; // 每格的高度
+    this.cols = config.cols || 10; // 列数
+    this.rows = config.rows || 8; // 行数
+    this.level = config.level || 1; // 等级
+    this.iconList = config.iconList || []; // 小图片集合
+    this.iconTypeCount = this.level + 2; // 图片的种类
+    this.pictures = []; // 图片集合
+    this.clickedPictureIndex = null; // 上一次被点中的图片的索引
+    return this;
+  }
+
+  LinkGame.prototype = {
+    init: function () {
+      this.createMap();
+      this.renderMap();
+      this.bindDomEvents();
+    },
+    replaceTpl: function (tpl, data) {
+      return tpl.replace(/\${(\w+)}/ig, function (match, $1) {
+        return data[$1];
+      });
+    },
+    
+    mergeArray: function (target, source) {
+      source.forEach(function (e) {
+        if(target.indexOf(e) === -1) {
+          target.push(e);
+        }
+      })
+    },
+    
+    checkMatch: function (index) {
+      var pictures = this.pictures;
+      var oldIndex = this.clickedPictureIndex;
+      if(pictures[index].isEmpty) { // 如果点击的图片是空白的，则退出
+        return;
+      }
+      this.clickedPictureIndex = index;
+      // 如果前后2次点击的是同一张图片，或者2张图片不是同类型的，则退出
+      if(oldIndex === index || !oldIndex ||  pictures[oldIndex].img !== pictures[index].img) {
+        return;
+      }
+      if(this.checkConnectable(oldIndex, index)) {
+        pictures[oldIndex].isEmpty = true;
+        pictures[index].isEmpty = true;
+        var $gameImg = $('.game-box img');
+        $gameImg.eq(oldIndex).addClass('transparent');
+        $gameImg.eq(index).addClass('transparent');
+        this.clickedPictureIndex = null;
+      }
+    },
+
+    checkConnectable: function (oldIndex, newIndex) {
+      var self = this;
+      var oldPicture = self.pictures[oldIndex],
+          newPicture = self.pictures[newIndex],
+          oldX = oldPicture.row,
+          oldY = oldPicture.col,
+          newX = newPicture.row,
+          newY = newPicture.col;
+
+      // 如果2个图片在同一行或者同一列，
+      if(oldX === newX && (oldX === 0 || oldX === self.rows - 1)  || oldY === newY && (oldY === 0 || oldY === self.cols - 1)) {
+        return true;
+      }
+      var closePictures = self.getDirectConnectPictures(newPicture); // 直接连接
+      console.log(JSON.stringify(closePictures));
+      closePictures.forEach(function (pic) { // 一个拐点
+        self.mergeArray(closePictures, self.getDirectConnectPictures(pic));
+      });
+      console.log(JSON.stringify(closePictures));
+      closePictures.forEach(function (pic) { // 2个拐点
+        self.mergeArray(closePictures, self.getDirectConnectPictures(pic));
+      });
+      console.log(JSON.stringify(closePictures));
+      if(closePictures.indexOf(oldPicture) !== -1) {
+        return true;
+      }
+      return false;
+    },
+
+    getDirectConnectPictures: function (startPicture) {
+//      var directConnectPictures = this.pictures.filter(function (pic) {
+//        return (pic.row === startPicture.row || pic.col === startPicture.col) && pic.isEmpty;
+//      });
+
+      var closePictures = [];
+
+      var left = this.pictures.filter(function (pic) {
+        return pic.index === startPicture.index - 1 && pic.isEmpty && pic.row === startPicture.row;
+      });
+
+      var right = this.pictures.filter(function (pic) {
+        return pic.index === startPicture.index + 1 && pic.isEmpty && pic.row === startPicture.row;
+      }).shift();
+
+      var up = directConnectPictures.filter(function (pic) {
+        return pic.col === startPicture.col && pic.index < startPicture.index;
+      }).sort(function (pic1, pic2) {
+        return pic2.index - pic1.index;
+      }).shift();
+
+      var down = directConnectPictures.filter(function (pic) {
+        return pic.col === startPicture.col && pic.index > startPicture.index;
+      }).sort(function (pic1, pic2) {
+        return pic1.index - pic2.index;
+      }).shift();
+
+      left && closePictures.push(left);
+      right && closePictures.push(right);
+      up && closePictures.push(up);
+      down && closePictures.push(down);
+      return closePictures;
+    },
+
+
+    
+    createMap: function () {
+      for(var i = 0; i < this.cols * this.rows; i++) {
+        this.pictures.push({
+          row: parseInt(i / this.cols),
+          col: i % this.cols,
+          isEmpty: false,
+          index: i,
+          img: this.iconList[parseInt(i / 2) % this.iconTypeCount]
+        });
+      }
+//      for(var row = 0, index = 0; row < this.rows; row++) { // 行
+//        this.pictures.push([]);
+//        for(var col = 0; col < this.cols; col++, index++) { // 列
+//          this.pictures[row].push({
+//            row: row,
+//            col: col,
+//            isEmpty: false,
+//            index: index,
+//            img: this.iconList[parseInt(index / 2) % this.iconTypeCount]
+//          });
+//        }
+//      }
+    },
+
+    renderMap: function () {
+      var self = this;
+      var html = '<div class="game-row">';
+      var pictureInfo = {
+        width: this.cellWidth,
+        height: this.cellHeight
+      };
+      this.pictures.forEach(function (picture, index) {
+        var tpl = '<img draggable=false src="${imgUrl}" data-index="${index}" class="game-picture" width=${width} height=${height} />';
+        pictureInfo.imgUrl = picture.img;
+        pictureInfo.index = picture.index;
+        html += self.replaceTpl(tpl, pictureInfo);
+        if((index + 1) % self.cols === 0) {
+          html += '</div>';
+          if(index !== self.pictures.length - 1) {
+            html += '<div class="game-row">';
+          }
+        }
+      });
+      this.$box.html(html);
+    },
+    
+    bindDomEvents: function () {
+      var self = this;
+      $('.game-box').on('click', function (event) {
+        var target = event.target;
+        if(target.classList.contains('game-picture')) {
+          self.checkMatch(target.dataset.index);
+        }
+      });
+    },
+
+
+    on: function(name, callback) {
+      var self = this;
+      name = name.split(' ');
+      name.forEach(function(n){
+        var list = self.events[n] || (self.events[n] = []);
+        list.push(callback);
+      });
+      return this;
+    },
+    emit: function(name, data) {
+      var list = this.events[name];
+      if (list) {
+        list = list.slice();
+        for(var i = 0, len = list.length; i < len; i++) {
+          list[i](data)
+        }
+      }
+      return this;
+    },
+  };
+
+
+
+</script>
+</body>
+</html>
