@@ -1,0 +1,48 @@
+* {
+    box-sizing: border-box;
+}
+
+.wrapper {
+    width: 800px;
+    height: 600px;
+    border: 1px solid #ccc;
+}
+
+.control-box {
+    height: 50px;
+    line-height: 50px;
+    font-size: 24px;
+}
+
+.score, .level, .disorder, .count-down {
+    width: 180px;
+    display: inline-block;
+}
+
+.score {
+
+}
+
+.title {
+
+}
+
+.game-box {
+    width: 800px;
+    position: relative;
+    margin: 0 auto;
+}
+
+.game-box .game-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.game-box .game-row img {
+    cursor: pointer;
+}
+
+.empty {
+    opacity: 0;
+}
