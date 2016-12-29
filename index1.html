@@ -63,23 +63,23 @@
     if(!(this instanceof LinkGame)) {
       return new LinkGame(config);
     }
-    this.$box = $('.' + (config.boxId || 'game-box'))
+    this.$box = $('.' + (config.boxId || 'game-box'));
     this.cellWidth = config.cellWidth || 68; // 每格的的宽度
     this.cellHeight = config.cellHeight || 64; // 每格的高度
     this.cols = config.cols || 10; // 列数
     this.rows = config.rows || 8; // 行数
     this.level = config.level || 1; // 等级
     this.iconList = config.iconList || []; // 小图片集合
-    this.iconTypeCount = this.level + 2; // 图片的种类
+    this.iconTypeCount = this.level + 8; // 图片的种类
     this.pictures = []; // 图片集合
-    this.clickedPictureIndex = null; // 上一次被点中的图片的索引
+    this.preClickInfo = null; // 上一次被点中的图片信息
     return this;
   }
 
   LinkGame.prototype = {
     init: function () {
       this.createMap();
-      this.renderMap();
+      this.disorder();
       this.bindDomEvents();
     },
     replaceTpl: function (tpl, data) {
@@ -96,116 +96,163 @@
       })
     },
     
-    checkMatch: function (index) {
-      var pictures = this.pictures;
-      var oldIndex = this.clickedPictureIndex;
-      if(pictures[index].isEmpty) { // 如果点击的图片是空白的，则退出
+    checkMatch: function (curClickInfo) {
+      var pictures = this.pictures,
+          preClickInfo = this.preClickInfo ? this.preClickInfo : {},
+          preRow = +preClickInfo.row,
+          preCol = +preClickInfo.col,
+          preIndex = +preClickInfo.index,
+          curRow = +curClickInfo.row,
+          curCol = +curClickInfo.col,
+          curIndex = +curClickInfo.index;
+
+      // 如果点击的图片是空白的，则退出
+      if(pictures[curRow][curCol].isEmpty) {
         return;
       }
-      this.clickedPictureIndex = index;
+      this.preClickInfo = curClickInfo;
       // 如果前后2次点击的是同一张图片，或者2张图片不是同类型的，则退出
-      if(oldIndex === index || !oldIndex ||  pictures[oldIndex].img !== pictures[index].img) {
+      if(preIndex === curIndex || !preIndex ||  pictures[preRow][preCol].pic !== pictures[curRow][curCol].pic) {
         return;
       }
-      if(this.checkConnected(oldIndex, index)) {
-        pictures[oldIndex].isEmpty = true;
-        pictures[index].isEmpty = true;
+
+      if(this.isConnected(preRow, preCol, curRow, curCol)) {
+        pictures[preRow][preCol].isEmpty = true;
+        pictures[curRow][curCol].isEmpty = true;
         var $gameImg = $('.game-box img');
-        $gameImg.eq(oldIndex).addClass('transparent');
-        $gameImg.eq(index).addClass('transparent');
-        this.clickedPictureIndex = null;
+        $gameImg.eq(preIndex).addClass('transparent');
+        $gameImg.eq(curIndex).addClass('transparent');
+        this.preClickInfo = null;
       }
     },
 
-    checkConnected: function (oldIndex, newIndex) {
-      var self = this;
-      var oldPicture = self.pictures[oldIndex],
-          newPicture = self.pictures[newIndex],
-          oldX = oldPicture.row,
-          oldY = oldPicture.col,
-          newX = newPicture.row,
-          newY = newPicture.col;
 
-      // 如果2个图片在同一行或者同一列，
-      if(oldX === newX && (oldX === 0 || oldX === self.rows - 1)  || oldY === newY && (oldY === 0 || oldY === self.cols - 1)) {
-        return true;
-      }
-      var closePictures = self.getDirectConnectPictures(newPicture, oldPicture); // 直接连接
+    isConnected: function (preRow, preCol, curRow, curCol) {
+      var self = this,
+          prePicture = self.pictures[preRow][preCol],
+          curPicture = self.pictures[curRow][curCol],
+          preBorderInfo = this.getBorderInfo(preRow, preCol),
+          curBorderInfo = this.getBorderInfo(curRow, curCol),
+          isConnectedOutside = false,
+          isConnectedInside = false;
+
+      preBorderInfo.forEach(function (borderInfo, i) {
+        console.log(borderInfo, curBorderInfo[i]);
+        borderInfo && curBorderInfo[i] && (isConnectedOutside = true);
+      });
+      var closePictures = self.getClosePictures(curPicture, prePicture); // 直接连接
       closePictures.forEach(function (pic) { // 一个拐点
-        self.mergeArray(closePictures, self.getDirectConnectPictures(pic, oldPicture));
+        self.mergeArray(closePictures, self.getClosePictures(pic, prePicture));
       });
       closePictures.forEach(function (pic) { // 2个拐点
-        self.mergeArray(closePictures, self.getDirectConnectPictures(pic, oldPicture));
+        self.mergeArray(closePictures, self.getClosePictures(pic, prePicture));
       });
-      console.log(closePictures);
-      if(closePictures.indexOf(oldPicture) !== -1) {
-        return true;
+      isConnectedInside = (closePictures.indexOf(prePicture) !== -1) ? true : false;
+      return isConnectedInside || isConnectedOutside;
+    },
+
+    // 搜索某个图片的所有的可直线到达的其他图片并返回
+    getClosePictures: function (originPicture, targetPicture) {
+      var pictures = this.pictures,
+          connectedPictures = [];
+      // 向左搜索
+      for(var col = originPicture.col - 1; col >= 0; col--) {
+        if(!pictures[originPicture.row][col].isEmpty && pictures[originPicture.row][col] !== targetPicture) {
+          break;
+        }
+        connectedPictures.push(pictures[originPicture.row][col]);
       }
-      return false;
+      // 向右搜索
+      for(var col = originPicture.col + 1; col < this.cols; col++) {
+        if(!pictures[originPicture.row][col].isEmpty && pictures[originPicture.row][col] !== targetPicture) {
+          break;
+        }
+        connectedPictures.push(pictures[originPicture.row][col]);
+      }
+      // 向上搜索
+      for(var row = originPicture.row - 1; row >= 0; row--) {
+        if(!pictures[row][originPicture.col].isEmpty && pictures[row][originPicture.col] !== targetPicture) {
+          break;
+        }
+        connectedPictures.push(pictures[row][originPicture.col]);
+      }
+      // 向下搜索
+      for(var row = originPicture.row + 1; row < this.rows; row++) {
+        if(!pictures[row][originPicture.col].isEmpty && pictures[row][originPicture.col] !== targetPicture) {
+          break;
+        }
+        connectedPictures.push(pictures[row][originPicture.col]);
+      }
+      return connectedPictures;
     },
 
-    getDirectConnectPictures: function (startPicture, endPicture) {
-      var self = this;
-      var left = this.pictures.filter(function (pic) {
-        return pic.index < startPicture.index && (pic.isEmpty || pic === endPicture) && pic.row === startPicture.row;
-      });
-      var right = this.pictures.filter(function (pic) {
-        return pic.index > startPicture.index && (pic.isEmpty || pic === endPicture) && pic.row === startPicture.row;
-      });
-      var up = this.pictures.filter(function (pic) {
-        return (pic.index < startPicture.index) && (pic.col === startPicture.col) && (pic.isEmpty || pic === endPicture);
-      });
-      var down = this.pictures.filter(function (pic) {
-        return pic.index > startPicture.index && (pic.col === startPicture.col) && (pic.isEmpty || pic === endPicture);
-      });
-      return [].concat(left, right, up, down);
+    // 获取图片对边界的连接情况
+    getBorderInfo: function (row, col) {
+      var pictures = this.pictures,
+          reachInfo = [false, false, false, false]; // 数组里的4个布尔值分别表示能否到达上、右、下、左边界
+      for(var r = row; r >= 0; r--) { // 能否到达上边界
+        if(!pictures[r][col].isEmpty && r !== row) break;
+        reachInfo[0] = r === 0;
+      }
+      for(var c = col; c < this.cols; c++) { // 能否到达右边界
+        if(!pictures[row][c].isEmpty && c !== col) break;
+        reachInfo[1] =  c === this.cols - 1;
+      }
+      for(var r = row; r < this.rows; r++) { // 能否到达下边界
+        if(!pictures[r][col].isEmpty && r !== row) break;
+        reachInfo[2] = r === this.rows - 1;
+      }
+      for(var c = col; c >= 0; c--) { // 能否到达左边界
+        if(!pictures[row][c].isEmpty && c !== col) break;
+        reachInfo[3] =  c === 0;
+      }
+      return reachInfo;
     },
-
-
+    
+    disorder: function () {
+      var pictures = this.pictures;
+      for(var i = 0; i < pictures.length * 10; i++) {
+        var randomRow1 = parseInt(Math.random() * this.rows);
+        var randomRow2 = parseInt(Math.random() * this.rows);
+        var randomCols1 = parseInt(Math.random() * this.cols);
+        var randomCols2 = parseInt(Math.random() * this.cols);
+        var tempPic = pictures[randomRow1][randomCols1].pic;
+        pictures[randomRow1][randomCols1].pic = pictures[randomRow2][randomCols2].pic;
+        pictures[randomRow2][randomCols2].pic = tempPic;
+      }
+      this.renderMap();
+    },
     
     createMap: function () {
-      for(var i = 0; i < this.cols * this.rows; i++) {
-        this.pictures.push({
-          row: parseInt(i / this.cols),
-          col: i % this.cols,
-          isEmpty: false,
-          index: i,
-          img: this.iconList[parseInt(i / 2) % this.iconTypeCount]
-        });
+      var count = 0;
+      for(var row = 0; row < this.rows; row++) {
+        this.pictures.push([]);
+        for(var col = 0; col < this.cols; col++, count++) {
+          this.pictures[row].push({
+            row: row,
+            col: col,
+            isEmpty: false,
+            index: count,
+            pic: this.iconList[parseInt(count / 2) % this.iconTypeCount],
+            width: this.cellWidth,
+            height: this.cellHeight
+          })
+        }
       }
-//      for(var row = 0, index = 0; row < this.rows; row++) { // 行
-//        this.pictures.push([]);
-//        for(var col = 0; col < this.cols; col++, index++) { // 列
-//          this.pictures[row].push({
-//            row: row,
-//            col: col,
-//            isEmpty: false,
-//            index: index,
-//            img: this.iconList[parseInt(index / 2) % this.iconTypeCount]
-//          });
-//        }
-//      }
     },
 
     renderMap: function () {
-      var self = this;
-      var html = '<div class="game-row">';
-      var pictureInfo = {
-        width: this.cellWidth,
-        height: this.cellHeight
-      };
-      this.pictures.forEach(function (picture, index) {
-        var tpl = '<img draggable=false src="${imgUrl}" data-index="${index}" class="game-picture" width=${width} height=${height} />';
-        pictureInfo.imgUrl = picture.img;
-        pictureInfo.index = picture.index;
-        html += self.replaceTpl(tpl, pictureInfo);
-        if((index + 1) % self.cols === 0) {
-          html += '</div>';
-          if(index !== self.pictures.length - 1) {
-            html += '<div class="game-row">';
-          }
+      this.$box.html(''); // 将视图清空
+      var html = '',
+        pictures = this.pictures,
+        tpl = '<img class="game-picture" draggable=false src="${pic}" data-row="${row}" data-col="${col}" data-index="${index}" width=${width} height=${height} />';
+      for(var row = 0; row < this.rows; row++) {
+        html += '<div class="game-row">';
+        for(var col = 0; col < this.cols; col++) {
+          html += this.replaceTpl(tpl, pictures[row][col]);
         }
-      });
+        html += '</div>';
+      }
       this.$box.html(html);
     },
     
@@ -214,7 +261,12 @@
       $('.game-box').on('click', function (event) {
         var target = event.target;
         if(target.classList.contains('game-picture')) {
-          self.checkMatch(target.dataset.index);
+          var data = {
+            index: target.dataset.index,
+            row: target.dataset.row,
+            col: target.dataset.col
+          };
+          self.checkMatch(data);
         }
       });
     },
