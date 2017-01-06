@@ -10,24 +10,30 @@
 </head>
 <body>
   <div class="wrapper">
-    <div class="control-box">
-      <div class="score">
-        <span class="title">分数：</span>
-        <span class="value">3000</span>
-      </div>
-      <div class="level">
-        <span class="title">级别：</span>
-        <span>第<span class="value">1</span>关</span>
-      </div>
-      <div class="disorder">
-        <span class="title">重排</span>
-      </div>
-      <div class="count-down">
-        <span class="title">时间</span>
-        <span class="value">180</span>
+    <div class="init-box">
+      <div class="start-btn">
       </div>
     </div>
-    <div class="game-box"></div>
+    <div class="game-box hidden">
+      <div class="toolbar">
+        <div class="time"></div>
+        <div class="level"></div>
+        <div class="disorder"></div>
+        <div class="scoring"></div>
+      </div>
+      <div class="game-area">
+        <table id="game">
+          <canvas id="canvas" class="hidden" width=800 height=560></canvas>
+        </table>
+      </div>
+    </div>
+    <div class="game-over hidden">
+      <div class="current-score"></div>
+      <div class="history-score"></div>
+      <div class="replay-btn"></div>
+    </div>
+    <audio class="hidden" src="http://mp3.9ku.com/hot/2010/10-19/400027.mp3" loop="loop"></audio>
+
   </div>
   <script src="//cdn.bootcss.com/zepto/1.2.0/zepto.min.js"></script>
   <script src="./main.js"></script>
