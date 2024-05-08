@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0 maximum-scale=1.0 user-scalable=no">
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>连连看</title>
   <link rel="stylesheet" href="./main.css">
 </head>
 <body>
@@ -23,11 +22,12 @@
       </div>
       <div class="game-area">
         <table id="game">
-          <canvas id="canvas" class="hidden" width=800 height=560></canvas>
+          <canvas id="canvas" class=""></canvas>
         </table>
       </div>
     </div>
     <div class="game-over hidden">
+      <img src="./images/game-over.png" alt="">
       <div class="current-score"></div>
       <div class="history-score"></div>
       <div class="replay-btn"></div>

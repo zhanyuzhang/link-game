@@ -1,236 +1,242 @@
 * {
   margin: 0;
   padding: 0;
-
   border: 0;
+  transition: all 0.3s ease;
 }
-
+/* 行列变量，在js修改即可,自动在body插入行内样式 */
+:root {
+  --row: 6;
+  --col: 6;
+  /* row和col最小值 */
+  --max: max(var(--row), var(--col));
+  --min: min(var(--row), var(--col));
+}
 body {
-  padding-top: 100px;
   /*火狐*/
-
   -webkit-user-select: none;
-     -moz-user-select: none;
+  -moz-user-select: none;
   /*webkit浏览器*/
-      -ms-user-select: none;
+  -ms-user-select: none;
   /*早期浏览器*/
-          user-select: none; 
+  user-select: none;
 
   background: #000;
   /*IE10*/
-
-   -khtml-user-select: none;
+  -khtml-user-select: none;
+  overflow: hidden;
 }
 
 .wrapper {
   position: relative;
 
-  width: 800px;
-  height: 660px;
+  width: 100%;
+  height: 100vh;
   /*border: 1px solid #ccc;*/
   margin: 0 auto;
-
-  background: url('images/game-bg.png') center no-repeat;
+  background: url("images/game-bg.png") center no-repeat;
   background-size: cover;
 }
 
 .wrapper .init-box {
-  position: relative; 
-
+  position: relative;
   width: 100%;
   height: 100%;
-
-  background: url('images/start-cover.png') center no-repeat;
-  background-size: cover;
+  background: url("images/start-cover.png") center no-repeat;
+  background-size: contain;
 }
 
 .wrapper .init-box .start-btn {
   position: absolute;
-  right: 0;
-  bottom: 30px;
   left: 0;
-
-  width: 149px;
-  height: 208px;
-  margin: 0 auto;
-
+  width: 100vw;
+  height: 30vw;
   cursor: pointer;
+  top: 55%;
 }
 
 .wrapper .game-box {
-  position: relative; 
-
+  position: relative;
+  height: 100%;
   width: 100%;
 }
 
 .wrapper .game-box .toolbar {
   font-size: 24px;
-  line-height: 92px;
-
-  position: relative; 
-
+  position: relative;
   width: 100%;
-  height: 92px;
-
-  background: url('images/toolbar3.png') center no-repeat;
-  background-size: cover;
+  max-width: 768px;
+  height: 11.5vw;
+  max-height: 85px;
+  background: url("images/toolbar3.png") center no-repeat;
+  background-size: 100%;
+  margin: 0 auto;
 }
 
+.wrapper .game-box .toolbar img {
+  height: 5vw;
+  max-height: 40px;
+}
 .wrapper .game-box .toolbar .time {
-  line-height: 34px; 
-
   position: absolute;
-  top: 15px;
-  left: 110px;
+  top: 40%;
+  transform: translateY(-50%);
+  left: 15%;
 }
 
 .wrapper .game-box .toolbar .level {
-  line-height: 34px; 
-
   position: absolute;
-  top: 12px;
-  left: 294px;
-
-  height: 34px;
-}
-
-.wrapper .game-box .toolbar .level img {
-  height: 34px;
+  top: 40%;
+  transform: translateY(-50%);
+  left: 37.5%;
 }
 
 .wrapper .game-box .toolbar .disorder {
   position: absolute;
-  left: 341px;
-
-  width: 120px;
-  height: 84px;
-
+  height: 100%;
+  width: 15%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   cursor: pointer;
 }
 
 .wrapper .game-box .toolbar .disorder img {
+  right: -10px;
+  bottom: 0;
   position: absolute;
-  top: 40px; 
-  right: 0;
 }
 
 .wrapper .game-box .toolbar .scoring {
-  line-height: 34px;
-
   position: absolute;
-  top: 15px;
-  left: 530px;
-
-  width: 251px;
-  height: 34px;
-
+  transform: translateY(-50%);
+  top: 40%;
+  left: 67.5%;
   cursor: pointer;
-}
-
-.wrapper .game-box .toolbar .scoring img {
-  height: 34px;
 }
 
 .wrapper .game-box .game-area {
   position: relative;
+  width: 100%;
+  height: calc(100vh - min(85px, 11.5vw));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* padding: 40px 0; */
 }
 
 .wrapper .game-box .game-area table#game {
-  border-spacing: 0; 
+  position: absolute;
+  border-spacing: 0;
   border-collapse: collapse;
+  margin-bottom: 11.5vw;
 }
-
-.wrapper .game-box .game-area table#game .game-row {
-  height: 80px;
+.wrapper .game-box .game-area table#game tr {
+  height: calc(90vmin / var(--max));
+  display: flex;
 }
-
 .wrapper .game-box .game-area table#game .game-row td {
-  width: 80px;
-  height: 80px;
-
+  width: calc(90vmin / var(--max));
   text-align: center;
   vertical-align: middle;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .wrapper .game-box .game-area table#game .game-row td .pic-box {
-  line-height: 64px;
-
-  display: inline-block;
-
-  width: 64px;
-  height: 64px;
-
+  display: flex;
+  width: 90%;
+  height: 90%;
   cursor: pointer;
-
-  background: url('images/pic-bg.png') center no-repeat;
+  background: url("images/pic-bg.png") center no-repeat;
   background-size: contain;
+  align-items: center;
+  justify-content: center;
 }
-
+.wrapper .game-box .game-area table#game .game-row td .pic-box img {
+  width: 7vmin;
+  height: 7vmin;
+}
 .wrapper .game-box .game-area table#game .game-row td .pic-box.active {
-  width: 80px;
-  height: 80px;
-
-  border-radius: 16px; 
+  border-radius: 16px;
   background: url(images/active.png) center no-repeat;
   background-size: 124%;
 }
 
-.wrapper .game-box .game-area table#game .game-row td .pic-box img {
-  vertical-align: middle;
-}
-
 .wrapper .game-box .game-area #canvas {
   position: absolute;
-  left: 0;
-  top: 0;
-
-  width: 800px;
-  height: 560px;
+  pointer-events: none;
+  height: calc(calc(90vmin) / var(--max) * var(--row));
+  width: calc(calc(90vmin) / var(--max) * var(--col));
+  margin-bottom: 11.5vw;
 }
-
+/* 横屏 */
+@media screen and (orientation: landscape) {
+  .wrapper .game-box .game-area table#game {
+    margin-bottom: unset;
+  }
+  .wrapper .game-box .game-area table#game tr {
+    height: calc(calc(90vmin - min(85px, 11.5vw)) / var(--min));
+  }
+  .wrapper .game-box .game-area table#game .game-row td {
+    width: calc(calc(90vmin - min(85px, 11.5vw)) / var(--min));
+  }
+  .wrapper .game-box .game-area #canvas {
+    /* height: calc(
+      calc(calc(90vmin - min(85px, 11.5vw)) / var(--min) * var(--row))
+    );
+    width: calc(
+      calc(calc(90vmin - min(85px, 11.5vw)) / var(--min) * var(--col))
+    ); */
+    margin-bottom: unset;
+  }
+}
 .wrapper .game-over {
   position: absolute;
   top: 0;
-
-  width: 800px;
-  height: 660px;
-
-  background: rgba(0, 0, 0, .4) url(images/game-over.png) center no-repeat;
-  background-size: auto;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .wrapper .game-over .current-score {
   position: absolute;
-  top: 320px;
-  left: 241px;
-
-  width: 350px;
-  height: 60px;
-
-  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-5vmin, calc(-50% - 4.5vmin));
+  width: 40vmin;
+  height: 4.5vmin;
 }
-
-.wrapper .game-over .history-score {
-  font-size: 20px; 
-
+.wrapper .game-over > img {
   position: absolute;
-  top: 436px;
-  left: 411px;
-
-  width: 200px;
-  height: 30px;
-
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vmin;
+}
+.wrapper .game-over .current-score img {
+  height: 4.5vmin;
+}
+.wrapper .game-over .history-score {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(3vmin, calc(-50% + 21.2vmin));
+  width: 40vmin;
+  height: 4.5vmin;
+  font-size: 3.5vmin;
   color: #999;
 }
 
 .wrapper .game-over .replay-btn {
   position: absolute;
-  top: 396px;
-  left: 300px;
-
-  width: 200px;
-  height: 30px;
-
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, calc(-50% + 14.5vmin));
+  width: 40vmin;
+  height: 7.75vmin;
   cursor: pointer;
 }
 
@@ -245,7 +251,7 @@ body {
 .number {
   display: inline-block;
 
-  width: 34px; 
+  width: 34px;
   height: 34px;
 
   background-size: contain;

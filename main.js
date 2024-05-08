@@ -1,85 +1,98 @@
-'use strict';
+"use strict";
 
 function LinkGame(config) {
   if (!(this instanceof LinkGame)) {
     return new LinkGame(config);
   }
   this.score = 0; // 得分
-  this.$box = $('#' + (config.boxId || 'game'));
+  this.$box = $("#" + (config.boxId || "game"));
   this.cellWidth = config.cellWidth || 42; // 每格的的宽度
   this.cellHeight = config.cellHeight || 42; // 每格的高度
   this.cols = config.cols + 2 || 10; // 列数
   this.rows = config.rows + 2 || 8; // 行数
   this.level = config.level || 0; // 等级
   this.leftDisorderTime = 5; // 剩余重排次数
-  this.gifts = [ // 小图片集合
-    'images/gifts/0.png',
-    'images/gifts/1.png',
-    'images/gifts/2.png',
-    'images/gifts/3.png',
-    'images/gifts/4.png',
-    'images/gifts/5.png',
-    'images/gifts/6.png',
-    'images/gifts/7.png',
-    'images/gifts/8.png',
-    'images/gifts/9.png',
-    'images/gifts/10.png',
-    'images/gifts/11.png',
-    'images/gifts/12.png',
-    'images/gifts/13.png',
-    'images/gifts/14.png',
-    'images/gifts/15.png',
-    'images/gifts/16.png',
-    'images/gifts/17.png',
-    'images/gifts/18.png',
-    'images/gifts/19.png',
-    'images/gifts/20.png',
-    'images/gifts/21.png',
-    'images/gifts/22.png',
-    'images/gifts/23.png',
-    'images/gifts/24.png',
-    'images/gifts/25.png',
-    'images/gifts/26.png',
-    'images/gifts/27.png',
-    'images/gifts/28.png',
+  this.gifts = [
+    // 小图片集合
+    "./images/gifts/0.png",
+    "./images/gifts/1.png",
+    "./images/gifts/2.png",
+    "./images/gifts/3.png",
+    "./images/gifts/4.png",
+    "./images/gifts/5.png",
+    "./images/gifts/6.png",
+    "./images/gifts/7.png",
+    "./images/gifts/8.png",
+    "./images/gifts/9.png",
+    "./images/gifts/10.png",
+    "./images/gifts/11.png",
+    "./images/gifts/12.png",
+    "./images/gifts/13.png",
+    "./images/gifts/14.png",
+    "./images/gifts/15.png",
+    "./images/gifts/16.png",
+    "./images/gifts/17.png",
+    "./images/gifts/18.png",
+    "./images/gifts/19.png",
+    "./images/gifts/20.png",
+    "./images/gifts/21.png",
+    "./images/gifts/22.png",
+    "./images/gifts/23.png",
+    "./images/gifts/24.png",
+    "./images/gifts/25.png",
+    "./images/gifts/26.png",
+    "./images/gifts/27.png",
+    "./images/gifts/28.png",
   ];
   this.nums = [
-    'images/0.png',
-    'images/1.png',
-    'images/2.png',
-    'images/3.png',
-    'images/4.png',
-    'images/5.png',
-    'images/6.png',
-    'images/7.png',
-    'images/8.png',
-    'images/9.png',
+    "./images/0.png",
+    "./images/1.png",
+    "./images/2.png",
+    "./images/3.png",
+    "./images/4.png",
+    "./images/5.png",
+    "./images/6.png",
+    "./images/7.png",
+    "./images/8.png",
+    "./images/9.png",
   ];
   this.xnums = [
-    'images/x0.png',
-    'images/x1.png',
-    'images/x2.png',
-    'images/x3.png',
-    'images/x4.png',
-    'images/x5.png',
+    "./images/x0.png",
+    "./images/x1.png",
+    "./images/x2.png",
+    "./images/x3.png",
+    "./images/x4.png",
+    "./images/x5.png",
   ];
   this.pnums = [
-    'images/p0.png',
-    'images/p1.png',
-    'images/p2.png',
-    'images/p3.png',
-    'images/p4.png',
-    'images/p5.png',
-    'images/p6.png',
-    'images/p7.png',
-    'images/p8.png',
-    'images/p9.png',
+    "./images/p0.png",
+    "./images/p1.png",
+    "./images/p2.png",
+    "./images/p3.png",
+    "./images/p4.png",
+    "./images/p5.png",
+    "./images/p6.png",
+    "./images/p7.png",
+    "./images/p8.png",
+    "./images/p9.png",
   ];
   return this;
 }
 
 LinkGame.prototype = {
   init: function (isReset) {
+    // 在body中插入变量
+    document.body.style.setProperty("--row", this.rows - 2);
+    document.body.style.setProperty("--col", this.cols - 2);
+    document.body.style.setProperty(
+      "--min",
+      Math.min(this.rows, this.cols) - 2
+    );
+    document.body.style.setProperty(
+      "--max",
+      Math.max(this.rows, this.cols) - 2
+    );
+
     var self = this;
     this.stack = [];
     this.iconTypeCount = this.level + 11; // 图片的种类
@@ -108,7 +121,7 @@ LinkGame.prototype = {
   },
   // 模板替换
   replaceTpl: function (tpl, data) {
-    return tpl.replace(/\${(\w+)}/ig, function (match, $1) {
+    return tpl.replace(/\${(\w+)}/gi, function (match, $1) {
       return data[$1];
     });
   },
@@ -118,11 +131,11 @@ LinkGame.prototype = {
       if (target.indexOf(e) === -1) {
         target.push(e);
       }
-    })
+    });
   },
   // 生成一定范围内的随机数
   random: function (min, max) {
-    return parseInt((Math.random() * max) + min);
+    return parseInt(Math.random() * max + min);
   },
   // 交换对象属性
   swapProperties: function (obj1, obj2, properties) {
@@ -142,30 +155,31 @@ LinkGame.prototype = {
   },
   // 获取历史记录
   getHistoryScore: function () {
-    return window.localStorage.getItem('highestScore') || 0;
+    return window.localStorage.getItem("highestScore") || 0;
   },
   // 保存最高分
   setHistoryScore: function (score) {
-    var highestScore = this.getHistoryScore('highestScore');
+    var highestScore = this.getHistoryScore("highestScore");
     if (score > highestScore) {
-      window.localStorage.setItem('highestScore', score);
+      window.localStorage.setItem("highestScore", score);
     }
-
   },
 
   updateDomNumbers: function ($container, value, type) {
     var numList = [];
-    var nums = type === 1 ? this.nums : (type === 2 ? this.xnums : this.pnums);
-    $container.html('');
+    var nums = type === 1 ? this.nums : type === 2 ? this.xnums : this.pnums;
+    $container.html("");
     do {
       numList.push(value % 10);
       value = parseInt(value / 10);
     } while (value > 0);
 
     while (numList.length) {
-      $container.append(this.replaceTpl('<img src="${src}" />', {
-        src: nums[numList.pop()]
-      }));
+      $container.append(
+        this.replaceTpl('<img src="${src}" />', {
+          src: nums[numList.pop()],
+        })
+      );
     }
   },
 
@@ -176,16 +190,19 @@ LinkGame.prototype = {
       this.gameOver();
       return;
     }
-    this.updateDomNumbers($('.time'), this.leftTime, 1);
+    this.updateDomNumbers($(".time"), this.leftTime, 1);
   },
   gameOver: function () {
-    $('.game-over').removeClass('hidden').find('.history-score').text(this.getHistoryScore() || 0);
-    this.updateDomNumbers($('.current-score'), this.score, 3);
+    $(".game-over")
+      .removeClass("hidden")
+      .find(".history-score")
+      .text(this.getHistoryScore() || 0);
+    this.updateDomNumbers($(".current-score"), this.score, 3);
     this.setHistoryScore(this.score);
   },
 
   updateLevel: function () {
-    this.updateDomNumbers($('.level'), this.level + 1, 1);
+    this.updateDomNumbers($(".level"), this.level + 1, 1);
   },
   createMap: function () {
     var count = 0;
@@ -193,12 +210,17 @@ LinkGame.prototype = {
       this.pictures.push([]);
       for (var col = 0; col < this.cols; col++) {
         // 边界元素
-        if (row === 0 || row === this.rows - 1 || col === 0 || col === this.cols - 1) {
+        if (
+          row === 0 ||
+          row === this.rows - 1 ||
+          col === 0 ||
+          col === this.cols - 1
+        ) {
           this.pictures[row].push({
             row: row,
             col: col,
             isEmpty: true,
-            isBoundary: true
+            isBoundary: true,
           });
 
           // 内部元素
@@ -211,11 +233,10 @@ LinkGame.prototype = {
             pic: this.gifts[parseInt(count / 2) % this.iconTypeCount],
             width: this.cellWidth,
             height: this.cellHeight,
-            isBoundary: false
+            isBoundary: false,
           });
           count++;
         }
-
       }
     }
   },
@@ -225,30 +246,33 @@ LinkGame.prototype = {
     var random = this.random.bind(this);
     for (var i = 0; i < this.count * 10; i++) {
       // 随机选中2张图片，调用this.swapProperties交换俩人的pic和isEmpty属性
-      var picture1 = pictures[random(1, this.rows - 2)][random(1, this.cols - 2)];
-      var picture2 = pictures[random(1, this.rows - 2)][random(1, this.cols - 2)];
-      this.swapProperties(picture1, picture2, ['pic', 'isEmpty']);
+      var picture1 =
+        pictures[random(1, this.rows - 2)][random(1, this.cols - 2)];
+      var picture2 =
+        pictures[random(1, this.rows - 2)][random(1, this.cols - 2)];
+      this.swapProperties(picture1, picture2, ["pic", "isEmpty"]);
     }
     this.renderMap();
     this.updateDisorderTime();
   },
 
   updateDisorderTime: function () {
-    this.updateDomNumbers($('.disorder'), this.leftDisorderTime, 2);
+    this.updateDomNumbers($(".disorder"), this.leftDisorderTime, 2);
   },
   renderMap: function () {
-    this.$box.html(''); // 将视图清空
-    var html = '';
+    this.$box.html(""); // 将视图清空
+    var html = "";
     var pictures = this.pictures;
-    var tpl = '<td><div class="pic-box ${empty}" data-row="${row}" data-col="${col}" data-index="${index}"><img class="pic" draggable=false src="${pic}" width=${width} height=${height} /></div></td>';
+    var tpl =
+      '<td><div class="pic-box ${empty}" data-row="${row}" data-col="${col}" data-index="${index}"><img class="pic" draggable=false src="${pic}" width=${width} height=${height} /></div></td>';
     for (var row = 1; row < this.rows - 1; row++) {
       html += '<tr class="game-row">';
       for (var col = 1; col < this.cols - 1; col++) {
         var picture = this.cloneObj(pictures[row][col]);
-        picture.empty = picture.isEmpty ? 'empty' : '';
+        picture.empty = picture.isEmpty ? "empty" : "";
         html += this.replaceTpl(tpl, picture);
       }
-      html += '</tr>';
+      html += "</tr>";
     }
     this.$box.html(html);
   },
@@ -270,20 +294,26 @@ LinkGame.prototype = {
     }
     this.preClickInfo = curClickInfo;
     this.domAddActive(curIndex);
-    if (preIndex !== preIndex) { // NaN
+    if (preIndex !== preIndex) {
+      // NaN
       return;
     }
 
-
     // 如果前后2次点击的是同一张图片，或者2张图片不是同类型的，则退出
-    if (preIndex === curIndex || pictures[preRow][preCol].pic !== pictures[curRow][curCol].pic) {
+    if (
+      preIndex === curIndex ||
+      pictures[preRow][preCol].pic !== pictures[curRow][curCol].pic
+    ) {
       this.domRemoveActive(preIndex);
       return;
     }
     if (this.canCleanup(preCol, preRow, curCol, curRow)) {
       this.linkPictures = [];
       for (var i = 0; i < this.points.length - 1; i++) {
-        this.mergeArray(this.linkPictures, this.countPoints(this.points[i], this.points[i + 1]));
+        this.mergeArray(
+          this.linkPictures,
+          this.countPoints(this.points[i], this.points[i + 1])
+        );
       }
       this.drawLine();
       this.updateStatus(preRow, preCol, curRow, curCol, preIndex, curIndex);
@@ -295,24 +325,30 @@ LinkGame.prototype = {
   countPoints: function (start, end) {
     var points = [];
     var pictures = this.pictures;
-    if (start[0] === end[0]) { // 同列
+    if (start[0] === end[0]) {
+      // 同列
       var x = start[0];
-      if (start[1] > end[1]) { // 从下到上
+      if (start[1] > end[1]) {
+        // 从下到上
         for (var i = start[1]; i >= end[1]; i--) {
           points.push(pictures[i][x]);
         }
-      } else { // 从上到下
+      } else {
+        // 从上到下
         for (var i = start[1]; i <= end[1]; i++) {
           points.push(pictures[i][x]);
         }
       }
-    } else if (start[1] === end[1]) { // 同行
+    } else if (start[1] === end[1]) {
+      // 同行
       var y = start[1];
-      if (start[0] > end[0]) { // 从右到左
+      if (start[0] > end[0]) {
+        // 从右到左
         for (var i = start[0]; i >= end[0]; i--) {
           points.push(pictures[y][i]);
         }
-      } else { // 从左到右
+      } else {
+        // 从左到右
         for (var i = start[0]; i <= end[0]; i++) {
           points.push(pictures[y][i]);
         }
@@ -322,40 +358,52 @@ LinkGame.prototype = {
   },
 
   domAddActive: function (index) {
-    $('.game-row .pic-box').eq(index).addClass('active');
+    $(".game-row .pic-box").eq(index).addClass("active");
     return this;
   },
   domRemoveActive: function (index) {
-    $('.game-row .pic-box').eq(index).removeClass('active');
+    $(".game-row .pic-box").eq(index).removeClass("active");
     return this;
   },
 
   domAddEmpty: function (index) {
-    $('.game-row .pic-box').eq(index).addClass('empty').removeClass('active');
+    $(".game-row .pic-box").eq(index).addClass("empty").removeClass("active");
     return this;
   },
 
   // 记分
   domUpdateScore: function () {
-    this.updateDomNumbers($('.scoring'), this.score, 1);
+    this.updateDomNumbers($(".scoring"), this.score, 1);
   },
 
   // 连线
   drawLine: function (callback) {
-    var $canvas = $('#canvas');
-    if (!$canvas[0].getContext('2d')) return; // 不支持Canvas
+    const $canvas = $("#canvas");
+    resizeCanvas();
+    const size = $canvas[0].offsetWidth / (this.cols - 2);
+    if (!$canvas[0].getContext("2d")) return; // 不支持Canvas
     var linkList = this.linkPictures;
     var coordinate = [];
     for (var i = 0; i < linkList.length; i++) {
-      var x = linkList[i].col === 0 ? 0 : (linkList[i].col === this.cols - 1 ? $('#game').width() : linkList[i].col * 80 - 40);
-      var y = linkList[i].row === 0 ? 0 : (linkList[i].row === this.rows - 1 ? $('#game').height() : linkList[i].row * 80 - 40);
+      var x =
+        linkList[i].col === 0
+          ? 0
+          : linkList[i].col === this.cols - 1
+          ? $("#game").width()
+          : linkList[i].col * size - size / 2;
+      var y =
+        linkList[i].row === 0
+          ? 0
+          : linkList[i].row === this.rows - 1
+          ? $("#game").height()
+          : linkList[i].row * size - size / 2;
       coordinate.push([x, y]);
     }
-    var ctx = $canvas[0].getContext('2d');
+    var ctx = $canvas[0].getContext("2d");
     ctx.beginPath();
-    ctx.strokeStyle = "#fbff98";
-    ctx.fillStyle = "#fbff98";
+    ctx.strokeStyle = "#532bece0";
     ctx.lineWidth = 4;
+    ctx.lineCap = "round";
     ctx.save();
     for (var i = 0; i < linkList.length; i++) {
       if (i === 0) {
@@ -365,12 +413,9 @@ LinkGame.prototype = {
     }
     ctx.stroke();
     ctx.restore();
-    $canvas.removeClass('hidden');
     setTimeout(function () {
-      ctx.clearRect(0, 0, 800, 800);
-      $canvas.addClass('hidden');
+      ctx.clearRect(0, 0, 1000, 1000);
     }, 200);
-
   },
 
   updateStatus: function (preRow, preCol, curRow, curCol, preIndex, curIndex) {
@@ -393,8 +438,9 @@ LinkGame.prototype = {
     if (y1 != y2) {
       return false;
     }
-    x1 > x2 && (x1 = x1 + x2, x2 = x1 - x2, x1 = x1 - x2); //强制x1比x2小
-    for (var j = x1 + 1; j < x2; ++j) { //from (x2,y2+1) to (x2,y1-1);
+    x1 > x2 && ((x1 = x1 + x2), (x2 = x1 - x2), (x1 = x1 - x2)); //强制x1比x2小
+    for (var j = x1 + 1; j < x2; ++j) {
+      //from (x2,y2+1) to (x2,y1-1);
       if (!this.pictures[y1][j].isEmpty) {
         return false;
       }
@@ -402,12 +448,14 @@ LinkGame.prototype = {
     return true;
   },
   isColEmpty: function (x1, y1, x2, y2) {
+    // 检查指定列之间的格子是否为空
     if (x1 != x2) {
       return false;
     }
-    y1 > y2 && (y1 = y1 + y2, y2 = y1 - y2, y1 = y1 - y2); //强制y1比y2小
+    y1 > y2 && ((y1 = y1 + y2), (y2 = y1 - y2), (y1 = y1 - y2)); // 强制y1比y2小
 
-    for (var i = y1 + 1; i < y2; ++i) { //from (x2+1,y2) to (x1-1,y2);
+    for (var i = y1 + 1; i < y2; ++i) {
+      // 从 (x2+1,y2) 到 (x1-1,y2) 的每个格子
       if (!this.pictures[i][x1].isEmpty) {
         return false;
       }
@@ -420,7 +468,7 @@ LinkGame.prototype = {
       len = args.length,
       i = 0;
 
-    for (; i < len;) {
+    for (; i < len; ) {
       this.points.push(args[i++]);
     }
   },
@@ -428,15 +476,18 @@ LinkGame.prototype = {
   canCleanup: function (x1, y1, x2, y2) {
     this.points = [];
     if (x1 === x2) {
-      if (1 === y1 - y2 || 1 === y2 - y1) { //相邻
+      if (1 === y1 - y2 || 1 === y2 - y1) {
+        //相邻
         this.addPoints([x1, y1], [x2, y2]);
         return true;
-      } else if (this.isColEmpty(x1, y1, x2, y2)) { //直线
+      } else if (this.isColEmpty(x1, y1, x2, y2)) {
+        //直线
         this.addPoints([x1, y1], [x2, y2]);
         return true;
-      } else { //两个拐点	(优化)
+      } else {
+        //两个拐点	(优化)
         var i = 1;
-        while ((x1 + i < this.cols) && this.pictures[y1][x1 + i].isEmpty) {
+        while (x1 + i < this.cols && this.pictures[y1][x1 + i].isEmpty) {
           if (!this.pictures[y2][x2 + i].isEmpty) {
             break;
           } else {
@@ -448,7 +499,7 @@ LinkGame.prototype = {
           }
         }
         i = 1;
-        while ((x1 - i >= 0) && this.pictures[y1][x1 - i].isEmpty) {
+        while (x1 - i >= 0 && this.pictures[y1][x1 - i].isEmpty) {
           if (!this.pictures[y2][x2 - i].isEmpty) {
             break;
           } else {
@@ -459,11 +510,11 @@ LinkGame.prototype = {
             i++;
           }
         }
-
       }
     }
 
-    if (y1 === y2) { //同行
+    if (y1 === y2) {
+      //同行
       if (1 === x1 - x2 || 1 === x2 - x1) {
         this.addPoints([x1, y1], [x2, y2]);
         return true;
@@ -472,7 +523,7 @@ LinkGame.prototype = {
         return true;
       } else {
         var i = 1;
-        while ((y1 + i < this.rows) && this.pictures[y1 + i][x1].isEmpty) {
+        while (y1 + i < this.rows && this.pictures[y1 + i][x1].isEmpty) {
           if (!this.pictures[y2 + i][x2].isEmpty) {
             break;
           } else {
@@ -484,7 +535,7 @@ LinkGame.prototype = {
           }
         }
         i = 1;
-        while ((y1 - i >= 0) && this.pictures[y1 - i][x1].isEmpty) {
+        while (y1 - i >= 0 && this.pictures[y1 - i][x1].isEmpty) {
           if (!this.pictures[y2 - i][x2].isEmpty) {
             break;
           } else {
@@ -499,8 +550,10 @@ LinkGame.prototype = {
     }
 
     //一个拐点
-    if (this.isRowEmpty(x1, y1, x2, y1) && this.pictures[y1][x2].isEmpty) { // (x1,y1) -> (x2,y1)
-      if (this.isColEmpty(x2, y1, x2, y2)) { // (x1,y2) -> (x2,y2)
+    if (this.isRowEmpty(x1, y1, x2, y1) && this.pictures[y1][x2].isEmpty) {
+      // (x1,y1) -> (x2,y1)
+      if (this.isColEmpty(x2, y1, x2, y2)) {
+        // (x1,y2) -> (x2,y2)
         this.addPoints([x1, y1], [x2, y1], [x2, y2]);
         return true;
       }
@@ -519,7 +572,11 @@ LinkGame.prototype = {
         if (!this.pictures[y1][i].isEmpty) {
           break;
         } else {
-          if (this.isColEmpty(i, y1, i, y2) && this.isRowEmpty(i, y2, x2, y2) && this.pictures[y2][i].isEmpty) {
+          if (
+            this.isColEmpty(i, y1, i, y2) &&
+            this.isRowEmpty(i, y2, x2, y2) &&
+            this.pictures[y2][i].isEmpty
+          ) {
             this.addPoints([x1, y1], [i, y1], [i, y2], [x2, y2]);
             return true;
           }
@@ -531,7 +588,11 @@ LinkGame.prototype = {
         if (!this.pictures[y1][i].isEmpty) {
           break;
         } else {
-          if (this.isColEmpty(i, y1, i, y2) && this.isRowEmpty(i, y2, x2, y2) && this.pictures[y2][i].isEmpty) {
+          if (
+            this.isColEmpty(i, y1, i, y2) &&
+            this.isRowEmpty(i, y2, x2, y2) &&
+            this.pictures[y2][i].isEmpty
+          ) {
             this.addPoints([x1, y1], [i, y1], [i, y2], [x2, y2]);
             return true;
           }
@@ -543,7 +604,11 @@ LinkGame.prototype = {
         if (!this.pictures[i][x1].isEmpty) {
           break;
         } else {
-          if (this.isRowEmpty(x1, i, x2, i) && this.isColEmpty(x2, i, x2, y2) && this.pictures[i][x2].isEmpty) {
+          if (
+            this.isRowEmpty(x1, i, x2, i) &&
+            this.isColEmpty(x2, i, x2, y2) &&
+            this.pictures[i][x2].isEmpty
+          ) {
             this.addPoints([x1, y1], [x1, i], [x2, i], [x2, y2]);
             return true;
           }
@@ -555,7 +620,11 @@ LinkGame.prototype = {
         if (!this.pictures[i][x1].isEmpty) {
           break;
         } else {
-          if (this.isRowEmpty(x1, i, x2, i) && this.isColEmpty(x2, i, x2, y2) && this.pictures[i][x2].isEmpty) {
+          if (
+            this.isRowEmpty(x1, i, x2, i) &&
+            this.isColEmpty(x2, i, x2, y2) &&
+            this.pictures[i][x2].isEmpty
+          ) {
             this.addPoints([x1, y1], [x1, i], [x2, i], [x2, y2]);
             return true;
           }
@@ -567,43 +636,71 @@ LinkGame.prototype = {
   },
   bindDomEvents: function () {
     var self = this;
-    $('.wrapper').on('click', '.pic-box', function () {
-      var supportDataSet = this.dataset ? true : false;
-      var data = { // 兼容IE不支持dataset
-        row: supportDataSet ? this.dataset.row : this.getAttribute('data-row'),
-        col: supportDataSet ? this.dataset.col : this.getAttribute('data-col'),
-        index: supportDataSet ? this.dataset.index : this.getAttribute('data-index')
-      }
-      self.checkMatch(data);
-    }).on('click', '.disorder', function (event) {
-      self.leftDisorderTime-- > 0 && self.disorder();
-    }).on('click', '.replay-btn', function () {
-      self.score = 0;
-      self.level = 0;
-      self.leftDisorderTime = 5;
-      $('.game-over').addClass('hidden');
-      self.reset();
-    });
+    $(".wrapper")
+      .on("click", ".pic-box", function () {
+        var supportDataSet = this.dataset ? true : false;
+        var data = {
+          // 兼容IE不支持dataset
+          row: supportDataSet
+            ? this.dataset.row
+            : this.getAttribute("data-row"),
+          col: supportDataSet
+            ? this.dataset.col
+            : this.getAttribute("data-col"),
+          index: supportDataSet
+            ? this.dataset.index
+            : this.getAttribute("data-index"),
+        };
+        self.checkMatch(data);
+      })
+      .on("click", ".disorder", function (event) {
+        self.leftDisorderTime-- > 0 && self.disorder();
+      })
+      .on("click", ".replay-btn", function () {
+        self.score = 0;
+        self.level = 0;
+        self.leftDisorderTime = 5;
+        $(".game-over").addClass("hidden");
+        self.reset();
+      });
 
     // window.onbeforeunload = function (event) {
     //   return confirm("游戏可能会终止，您确定要刷新？");
     // };
-  }
+  },
 };
 
-
 $(function () {
-  $('.start-btn').click(function () {
-    $('audio').get(0).play();
-    $('.init-box').addClass('hidden');
-    $('.game-box').removeClass('hidden');
+  const $canvas = $("#canvas");
+
+  $(".start-btn").click(function () {
+    $("audio").get(0).play();
+    $(".init-box").addClass("hidden");
+    $(".game-box").removeClass("hidden");
     var gameConfig = {
-      cellWidth: 42,
-      cellHeight: 42,
-      rows: 7,
-      cols: 10,
+      cellWidth: 60,
+      cellHeight: 60,
+      rows: 6,
+      cols: 8,
       level: 0,
-    }
+    };
     new LinkGame(gameConfig).init();
+    resizeCanvas();
   });
 });
+
+let timmer = null;
+window.onresize = function () {
+  clearTimeout(timmer);
+  timmer = setTimeout(resizeCanvas, 200);
+};
+
+const resizeCanvas = (padding = 0) => {
+  const $canvas = $("#canvas");
+  $canvas[0].style.width =
+    $("#game")[0].getBoundingClientRect().width + padding + "px";
+  $canvas[0].style.height =
+    $("#game")[0].getBoundingClientRect().height + padding + "px";
+  $canvas[0].width = $canvas[0].offsetWidth;
+  $canvas[0].height = $canvas[0].offsetHeight;
+};
