@@ -593,6 +593,50 @@ LinkGame.prototype = {
 
 
 $(function () {
+  var $loginBox = $('#loginBox');
+  var $username = $('#username');
+  var $password = $('#password');
+  var $loginBtn = $('#loginBtn');
+  var $loginError = $('#loginError');
+
+  function checkLogin() {
+    var currentUser = localStorage.getItem('linkGameUser');
+    if (currentUser) {
+      $loginBox.addClass('hidden');
+      return true;
+    }
+    return false;
+  }
+
+  function handleLogin() {
+    var username = $username.val().trim();
+    var password = $password.val().trim();
+
+    if (!username) {
+      $loginError.text('请输入用户名');
+      return;
+    }
+    if (!password) {
+      $loginError.text('请输入密码');
+      return;
+    }
+
+    localStorage.setItem('linkGameUser', JSON.stringify({
+      username: username,
+      loginTime: new Date().toISOString()
+    }));
+    $loginBox.addClass('hidden');
+  }
+
+  if (!checkLogin()) {
+    $loginBtn.on('click', handleLogin);
+    $password.on('keypress', function(e) {
+      if (e.which === 13) {
+        handleLogin();
+      }
+    });
+  }
+
   $('.start-btn').click(function () {
     $('audio').get(0).play();
     $('.init-box').addClass('hidden');
