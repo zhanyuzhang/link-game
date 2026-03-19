@@ -9,6 +9,24 @@
   <link rel="stylesheet" href="./main.css">
 </head>
 <body>
+  <div class="login-box" id="loginBox">
+    <div class="login-container">
+      <h2 class="login-title">连连看游戏</h2>
+      <div class="login-form">
+        <div class="form-group">
+          <label for="username">用户名</label>
+          <input type="text" id="username" placeholder="请输入用户名" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="password">密码</label>
+          <input type="password" id="password" placeholder="请输入密码">
+        </div>
+        <div class="login-error" id="loginError"></div>
+        <button class="login-btn" id="loginBtn">登录</button>
+        <div class="login-tip">提示：任意用户名和密码即可登录</div>
+      </div>
+    </div>
+  </div>
   <div class="wrapper">
     <div class="init-box">
       <div class="start-btn">
